@@ -1,0 +1,2830 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucid Flex 50 — Trading Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ─────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────── */
+:root {
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --t: 0.22s;
+}
+
+/* Theme transition on all elements */
+*, *::before, *::after {
+  transition: background-color var(--t) var(--ease),
+              border-color var(--t) var(--ease),
+              box-shadow var(--t) var(--ease);
+}
+
+/* Override transition for elements that need their own */
+.cal-day, .tile, .session-item, .tc-wrap, .nav-btn, .seg-btn,
+.theme-opt, .btn-add, .card, .ds-tile, .recent-row {
+  transition: background-color var(--t) var(--ease),
+              border-color var(--t) var(--ease),
+              box-shadow var(--t) var(--ease),
+              transform 0.18s var(--ease),
+              color var(--t) var(--ease);
+}
+
+[data-theme="dark"] {
+  --bg:          #0a0a0b;
+  --surface:     #111113;
+  --card:        #18181b;
+  --card-hover:  #1c1c20;
+  --input:       #141416;
+  --border:      rgba(255,255,255,0.07);
+  --border-hi:   rgba(255,255,255,0.12);
+  --border-focus:rgba(255,255,255,0.24);
+  --text-1:      #fafafa;
+  --text-2:      #a1a1aa;
+  --text-3:      #52525b;
+  --text-4:      #27272a;
+  --green:       #22c55e;
+  --green-bg:    rgba(34,197,94,0.08);
+  --green-border:rgba(34,197,94,0.2);
+  --red:         #f87171;
+  --red-bg:      rgba(248,113,113,0.08);
+  --red-border:  rgba(248,113,113,0.2);
+  --blue:        #60a5fa;
+  --blue-bg:     rgba(96,165,250,0.08);
+  --blue-border: rgba(96,165,250,0.2);
+  --accent:      #ffffff;
+  --shadow-1:    0 1px 3px rgba(0,0,0,0.4);
+  --shadow-2:    0 4px 16px rgba(0,0,0,0.5);
+  --shadow-3:    0 16px 48px rgba(0,0,0,0.6);
+}
+
+[data-theme="light"] {
+  --bg:          #f4f4f5;
+  --surface:     #fafafa;
+  --card:        #ffffff;
+  --card-hover:  #f9f9fb;
+  --input:       #f4f4f5;
+  --border:      rgba(0,0,0,0.07);
+  --border-hi:   rgba(0,0,0,0.12);
+  --border-focus:rgba(0,0,0,0.3);
+  --text-1:      #09090b;
+  --text-2:      #52525b;
+  --text-3:      #a1a1aa;
+  --text-4:      #d4d4d8;
+  --green:       #16a34a;
+  --green-bg:    rgba(22,163,74,0.06);
+  --green-border:rgba(22,163,74,0.18);
+  --red:         #dc2626;
+  --red-bg:      rgba(220,38,38,0.06);
+  --red-border:  rgba(220,38,38,0.18);
+  --blue:        #2563eb;
+  --blue-bg:     rgba(37,99,235,0.06);
+  --blue-border: rgba(37,99,235,0.18);
+  --accent:      #09090b;
+  --shadow-1:    0 1px 3px rgba(0,0,0,0.08);
+  --shadow-2:    0 4px 16px rgba(0,0,0,0.1);
+  --shadow-3:    0 16px 48px rgba(0,0,0,0.14);
+}
+
+/* ── Light mode component overrides ─────────────────────────── */
+[data-theme="light"] .topbar          { box-shadow: 0 1px 0 rgba(0,0,0,0.08); }
+[data-theme="light"] .sidebar         { box-shadow: 1px 0 0 rgba(0,0,0,0.08); }
+[data-theme="light"] .hero-bar        { background: var(--surface); }
+[data-theme="light"] .prog-track      { background: rgba(0,0,0,0.08); }
+[data-theme="light"] .upload-zone     { background: rgba(0,0,0,0.02); }
+[data-theme="light"] .upload-zone:hover { background: rgba(0,0,0,0.05); }
+[data-theme="light"] .tag             { background: rgba(0,0,0,0.07); color: var(--text-2); }
+[data-theme="light"] .seg-btn         { color: var(--text-2); }
+[data-theme="light"] .seg-btn.on      { background: var(--text-1); color: #fff; }
+[data-theme="light"] .seg-btn.long.on { background: #16a34a; color: #fff; }
+[data-theme="light"] .seg-btn.short.on{ background: #dc2626; color: #fff; }
+[data-theme="light"] .seg-btn.win.on  { background: #16a34a; color: #fff; }
+[data-theme="light"] .seg-btn.loss.on { background: #dc2626; color: #fff; }
+[data-theme="light"] .seg-btn.be.on   { background: #d97706; color: #fff; }
+[data-theme="light"] .pnl-chip.win    { background: rgba(22,163,74,0.12);  color: #15803d; border-color: rgba(22,163,74,0.25); }
+[data-theme="light"] .pnl-chip.loss   { background: rgba(220,38,38,0.10);  color: #b91c1c; border-color: rgba(220,38,38,0.25); }
+[data-theme="light"] .pnl-chip.neu    { background: rgba(0,0,0,0.06); color: var(--text-2); border-color: var(--border); }
+[data-theme="light"] .tile-val.pos    { color: #15803d; }
+[data-theme="light"] .tile-val.neg    { color: #b91c1c; }
+[data-theme="light"] .recent-pnl.pos  { color: #15803d; }
+[data-theme="light"] .recent-pnl.neg  { color: #b91c1c; }
+[data-theme="light"] .si-pnl.pos      { color: #15803d; }
+[data-theme="light"] .si-pnl.neg      { color: #b91c1c; }
+[data-theme="light"] .ds-tile-val.pos { color: #15803d; }
+[data-theme="light"] .ds-tile-val.neg { color: #b91c1c; }
+[data-theme="light"] .nav-btn         { color: var(--text-2); }
+[data-theme="light"] .nav-btn.on      { background: rgba(0,0,0,0.07); color: var(--text-1); }
+[data-theme="light"] .nav-btn:hover   { background: rgba(0,0,0,0.05); color: var(--text-1); }
+[data-theme="light"] .session-item.on { background: rgba(0,0,0,0.05); }
+[data-theme="light"] .session-item:hover { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .theme-opt.on    { background: rgba(0,0,0,0.1); }
+[data-theme="light"] .theme-opt:hover { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .cal-day         { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+[data-theme="light"] .cal-day.has-trade:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.14); }
+[data-theme="light"] .cal-day.win-day { background: rgba(22,163,74,0.07); border-color: rgba(22,163,74,0.18); }
+[data-theme="light"] .cal-day.win-day .cal-d-pnl { color: #15803d; }
+[data-theme="light"] .cal-day.loss-day{ background: rgba(220,38,38,0.07); border-color: rgba(220,38,38,0.18); }
+[data-theme="light"] .cal-day.loss-day .cal-d-pnl { color: #b91c1c; }
+[data-theme="light"] .modal           { background: #fff; }
+[data-theme="light"] .btn-add         { border-color: var(--border-hi); color: var(--text-2); }
+[data-theme="light"] .btn-add:hover   { background: var(--input); }
+[data-theme="light"] .r-tab.on        { background: var(--text-1); color: #fff; }
+[data-theme="light"] .rule-item       { background: var(--input); }
+[data-theme="light"] .setup-card      { background: var(--input); }
+[data-theme="light"] .si-del          { color: var(--text-3); }
+[data-theme="light"] .si-del:hover    { color: var(--red); background: var(--red-bg); }
+[data-theme="light"] .lb-bg           { background: rgba(0,0,0,0.75); }
+[data-theme="light"] .main-noise        { opacity: 0.015; }
+[data-theme="light"] .save-ind        { background: #15803d; }
+[data-theme="light"] .clr-dot.on      { border-color: rgba(0,0,0,0.4); box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
+[data-theme="light"] .prog-fill.green { box-shadow: 0 0 8px rgba(22,163,74,0.4); }
+[data-theme="light"] .prog-fill.red   { box-shadow: 0 0 8px rgba(220,38,38,0.4); }
+[data-theme="light"] canvas#noteCanvas { background: #ffffff; }
+
+
+/* ─────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text-1);
+  height: 100%;
+  overflow: hidden;
+  transition: background var(--t) var(--ease), color var(--t) var(--ease), border-color var(--t) var(--ease);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+/* ─────────────────────────────────────────────
+   LAYOUT SHELL
+───────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-rows: 52px 1fr;
+  grid-template-columns: 200px 1fr;
+  height: 100vh;
+}
+
+/* ─────────────────────────────────────────────
+   TOPBAR
+───────────────────────────────────────────── */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 200px;
+  flex-shrink: 0;
+  padding-right: 20px;
+  border-right: 1px solid var(--border);
+}
+
+.logo-sq {
+  width: 28px; height: 28px;
+  background: var(--text-1);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  color: var(--bg);
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+
+.logo-info { display: flex; flex-direction: column; gap: 1px; }
+.logo-name { font-size: 12px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; line-height: 1; }
+.logo-phase { font-size: 10px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; }
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.nav-btn:hover { color: var(--text-2); background: var(--border); }
+.nav-btn.on { color: var(--text-1); background: var(--card); border: 1px solid var(--border); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-hi);
+  color: var(--text-2);
+  background: var(--card);
+  letter-spacing: 0.02em;
+}
+
+.save-flash {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--green);
+  opacity: 0; transition: opacity 0.4s;
+}
+
+/* Theme switcher */
+.theme-sw {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.theme-opt {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+  user-select: none;
+}
+
+.theme-opt.on {
+  background: var(--surface);
+  color: var(--text-1);
+  box-shadow: var(--shadow-1);
+}
+
+/* ─────────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-head {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.btn-add {
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px;
+  background: var(--text-1);
+  color: var(--bg);
+  border: none; border-radius: 5px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity var(--t);
+}
+
+.btn-add:hover { opacity: 0.85; }
+
+.session-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 0;
+}
+
+.session-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--t) var(--ease);
+  border-left: 2px solid transparent;
+}
+
+.session-item:hover { background: var(--card); }
+.session-item.on {
+  background: var(--card);
+  border-left-color: var(--blue);
+}
+
+.session-item.on.profit { border-left-color: var(--green); }
+.session-item.on.loss   { border-left-color: var(--red); }
+
+.si-row1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.si-date {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-1);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.si-pnl {
+  font-size: 11px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.si-pnl.pos { color: var(--green); }
+.si-pnl.neg { color: var(--red); }
+.si-pnl.zero { color: var(--text-3); }
+.si-meta { font-size: 10px; color: var(--text-3); }
+
+.si-del {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  background: var(--red-bg); border: 1px solid var(--red-border);
+  color: var(--red); font-size: 9px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0;
+  transition: opacity var(--t);
+}
+
+.session-item:hover .si-del { opacity: 1; }
+
+/* ─────────────────────────────────────────────
+   MAIN
+───────────────────────────────────────────── */
+.main {
+  overflow-y: auto;
+  background: var(--bg);
+  position: relative;
+}
+
+/* Noise texture overlay */
+.main::before {
+  content: '';
+  position: fixed;
+  inset: 52px 0 0 200px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.page { display: none; position: relative; z-index: 1; }
+.page.on { display: block; animation: fadeIn 0.28s var(--ease); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────
+   SHARED COMPONENTS
+───────────────────────────────────────────── */
+
+/* Section wrapper */
+.pg { padding: 28px 32px; max-width: 1200px; }
+
+/* Eyebrow label */
+.eyebrow {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 6px;
+}
+
+/* Card */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+
+.card:hover { border-color: var(--border-hi); }
+
+/* Stat tile */
+.tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: all var(--t) var(--ease);
+}
+
+.tile:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.tile-label {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-3); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+
+.tile-val {
+  font-size: 26px; font-weight: 600;
+  line-height: 1; color: var(--text-1);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.tile-val.pos { color: var(--green); }
+.tile-val.neg { color: var(--red); }
+.tile-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+/* Divider */
+.div { height: 1px; background: var(--border); }
+
+/* Progress bar */
+.prog-track {
+  height: 3px; background: var(--border);
+  border-radius: 2px; overflow: visible;
+  position: relative; margin: 12px 0 8px;
+}
+
+.prog-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--text-1);
+  transition: width 1.2s var(--ease);
+  position: relative;
+}
+
+.prog-fill::after {
+  content: '';
+  position: absolute; right: -4px; top: -3px;
+  width: 9px; height: 9px;
+  background: var(--text-1);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.prog-fill.green { background: var(--green); }
+.prog-fill.green::after { background: var(--green); }
+.prog-fill.red { background: var(--red); }
+.prog-fill.red::after { background: var(--red); }
+
+/* Input */
+.inp {
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  color: var(--text-1);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  outline: none; width: 100%;
+  transition: border-color var(--t);
+}
+
+.inp:focus { border-color: var(--border-focus); }
+.inp::placeholder { color: var(--text-3); font-family: 'DM Sans', sans-serif; }
+
+/* Textarea */
+.ta {
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 12px;
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; line-height: 1.6;
+  resize: vertical; min-height: 80px;
+  outline: none; width: 100%;
+  transition: border-color var(--t);
+}
+
+.ta:focus { border-color: var(--border-focus); }
+.ta::placeholder { color: var(--text-3); }
+
+/* Field label */
+.fl {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-3); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Row */
+.field-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 10px; }
+
+/* Direction / Outcome buttons */
+.seg { display: flex; gap: 4px; }
+
+.seg-btn {
+  flex: 1; padding: 7px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input);
+  color: var(--text-3);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.04em;
+  transition: all var(--t) var(--ease);
+  text-transform: uppercase;
+}
+
+.seg-btn:hover { border-color: var(--border-hi); color: var(--text-2); }
+.seg-btn.long.on  { background: var(--green-bg);  border-color: var(--green-border);  color: var(--green); }
+.seg-btn.short.on { background: var(--red-bg);    border-color: var(--red-border);    color: var(--red); }
+.seg-btn.win.on   { background: var(--green-bg);  border-color: var(--green-border);  color: var(--green); }
+.seg-btn.loss.on  { background: var(--red-bg);    border-color: var(--red-border);    color: var(--red); }
+.seg-btn.be.on    { background: var(--blue-bg);   border-color: var(--blue-border);   color: var(--blue); }
+
+/* P&L chip */
+.pnl-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px;
+  margin-left: auto;
+}
+.pnl-chip.win  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.pnl-chip.loss { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+.pnl-chip.neu  { background: var(--card);     color: var(--text-3);border: 1px solid var(--border); }
+
+/* Stars */
+.stars { display: flex; gap: 3px; }
+.star { font-size: 15px; cursor: pointer; color: var(--text-4); transition: color var(--t), transform 0.1s; }
+.star:hover { transform: scale(1.15); }
+.star.on { color: #fbbf24; }
+
+/* Tags */
+.tag-wrap {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  background: var(--input); border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 8px; min-height: 34px; cursor: text;
+}
+.tag-wrap:focus-within { border-color: var(--border-focus); }
+
+.tag {
+  background: var(--blue-bg); border: 1px solid var(--blue-border);
+  color: var(--blue); padding: 2px 7px; border-radius: 4px;
+  font-size: 10px; font-weight: 600;
+  display: flex; align-items: center; gap: 4px;
+}
+.tag-x { cursor: pointer; opacity: 0.5; }
+.tag-x:hover { opacity: 1; }
+.tag-inp { background: none; border: none; outline: none; color: var(--text-1); font-size: 11px; font-family: 'DM Sans', sans-serif; min-width: 60px; }
+
+/* Screenshot area */
+.shots-area { display: flex; flex-direction: column; gap: 10px; }
+
+.upload-zone {
+  border: 1px dashed var(--border-hi);
+  border-radius: 8px; padding: 18px 20px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; position: relative;
+  transition: all var(--t) var(--ease);
+  background: var(--input);
+}
+.upload-zone:hover { border-color: var(--text-3); background: var(--card); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+.uz-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border: 1px solid var(--border-hi); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3); font-size: 18px; font-weight: 300;
+}
+.uz-text { font-size: 12px; color: var(--text-2); }
+.uz-hint { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+.img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.img-thumb {
+  border-radius: 8px; overflow: hidden;
+  aspect-ratio: 16/9;
+  border: 1px solid var(--border);
+  position: relative; cursor: pointer;
+  transition: all var(--t) var(--ease);
+}
+.img-thumb:hover { border-color: var(--border-hi); box-shadow: var(--shadow-2); transform: scale(1.01); }
+.img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-del {
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,0.85); color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer; opacity: 0; transition: opacity var(--t);
+}
+.img-thumb:hover .img-del { opacity: 1; }
+
+.add-more-btn {
+  display: none; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border-radius: 7px;
+  border: 1px dashed var(--border-hi);
+  color: var(--text-3); font-size: 11px; font-weight: 500;
+  cursor: pointer; position: relative;
+  transition: all var(--t) var(--ease);
+}
+.add-more-btn:hover { border-color: var(--text-3); color: var(--text-2); }
+.add-more-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ─────────────────────────────────────────────
+   HOME PAGE
+───────────────────────────────────────────── */
+.home-pg { padding: 0; }
+
+/* Hero band */
+.hero {
+  padding: 56px 40px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: '';
+  position: absolute; bottom: -1px; left: 40px; right: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-hi), transparent);
+}
+
+.hero-label { font-size: 11px; font-weight: 500; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+
+.hero-amount {
+  font-size: 90px; font-weight: 700; line-height: 1;
+  color: var(--text-1); letter-spacing: 0.02em;
+  margin-bottom: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+.hero-meta {
+  font-size: 12px; color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+/* Eval bar section */
+.eval-bar-section {
+  padding: 28px 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.eval-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+.eval-lhs {}
+.eval-lhs-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.eval-lhs-val { font-size: 32px; font-weight: 600; color: var(--text-1); font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; }
+.eval-rhs { text-align: right; }
+.eval-rhs-label { font-size: 10px; color: var(--text-3); margin-bottom: 2px; }
+.eval-rhs-val { font-size: 13px; font-weight: 500; color: var(--text-2); font-family: 'JetBrains Mono', monospace; }
+
+/* Stats grid */
+.home-stats {
+  padding: 24px 40px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.home-bottom { padding: 24px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Section card */
+.sec-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sec-card-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px; font-weight: 600;
+  color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.sec-card-body { padding: 4px 0; }
+
+.recent-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--t);
+}
+.recent-row:last-child { border-bottom: none; }
+.recent-row:hover { background: var(--card-hover); }
+.recent-date { font-size: 11px; color: var(--text-2); font-family: 'JetBrains Mono', monospace; }
+.recent-pnl { font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+/* ─────────────────────────────────────────────
+   JOURNAL PAGE
+───────────────────────────────────────────── */
+.journal-pg { padding: 24px 28px; }
+
+.day-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.day-title { font-size: 18px; font-weight: 600; color: var(--text-1); letter-spacing: -0.02em; }
+
+.day-stats { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 20px; }
+
+.ds-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  transition: all var(--t) var(--ease);
+}
+.ds-tile:hover { border-color: var(--border-hi); }
+.ds-label { font-size: 9px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.ds-val { font-size: 16px; font-weight: 600; color: var(--text-1); font-family: 'JetBrains Mono', monospace; }
+.ds-val.pos { color: var(--green); }
+.ds-val.neg { color: var(--red); }
+
+/* Pre-market card */
+.pm-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.pm-head {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pm-title { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* Emotion buttons */
+.emo-row { display: flex; gap: 4px; }
+.emo-btn {
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--input); color: var(--text-3);
+  font-size: 10px; font-weight: 500; cursor: pointer;
+  transition: all var(--t) var(--ease);
+  font-family: 'DM Sans', sans-serif;
+}
+.emo-btn:hover { border-color: var(--border-hi); color: var(--text-2); }
+.emo-btn.on { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
+
+.pm-body { padding: 16px 18px; }
+
+/* Trade card */
+.tc-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  margin-bottom: 16px;
+  transition: box-shadow var(--t);
+}
+.tc-wrap:hover { box-shadow: var(--shadow-2); }
+
+.tc-head {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface);
+}
+
+.tc-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-3);
+  background: var(--input); border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: 4px;
+}
+
+.tc-body { padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+
+.tc-screenshots { border-bottom: 1px solid var(--border); padding-bottom: 18px; }
+
+.tc-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+.fields-col { display: flex; flex-direction: column; gap: 9px; }
+
+/* ─────────────────────────────────────────────
+   CALENDAR PAGE
+───────────────────────────────────────────── */
+.cal-pg { padding: 24px 28px; }
+
+.cal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.cal-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; min-width: 200px; }
+.cal-nav-btn {
+  width: 30px; height: 30px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text-2); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--t);
+}
+.cal-nav-btn:hover { border-color: var(--border-hi); color: var(--text-1); }
+.cal-today-btn {
+  font-size: 11px; font-weight: 500; padding: 5px 12px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text-2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--t);
+}
+.cal-today-btn:hover { border-color: var(--border-hi); color: var(--text-1); }
+
+.cal-month-stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 20px; }
+
+.cal-grid-wrap {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: transparent;
+  border: none;
+}
+
+.cal-dow-row {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  gap: 6px;
+}
+.cal-dow {
+  padding: 8px 0; text-align: center;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-3);
+}
+
+.cal-days {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  gap: 6px;
+}
+
+/* Each day is a standalone card */
+.cal-day {
+  aspect-ratio: 4/5;           /* portrait — taller than wide */
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  position: relative;
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease);
+  cursor: default;
+}
+
+.cal-day.empty {
+  background: transparent;
+  border-color: transparent;
+  pointer-events: none;
+}
+
+.cal-day.has-trade {
+  cursor: pointer;
+}
+
+.cal-day.has-trade:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  border-color: var(--border-hi);
+  z-index: 10;
+}
+
+.cal-day.win-day {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.15);
+}
+
+.cal-day.win-day:hover {
+  background: rgba(34,197,94,0.13);
+  border-color: rgba(34,197,94,0.3);
+  box-shadow: 0 12px 32px rgba(34,197,94,0.15);
+}
+
+.cal-day.loss-day {
+  background: rgba(248,113,113,0.08);
+  border-color: rgba(248,113,113,0.15);
+}
+
+.cal-day.loss-day:hover {
+  background: rgba(248,113,113,0.13);
+  border-color: rgba(248,113,113,0.3);
+  box-shadow: 0 12px 32px rgba(248,113,113,0.15);
+}
+
+.cal-day.today {
+  border-color: rgba(96,165,250,0.4);
+  box-shadow: inset 0 0 0 1px rgba(96,165,250,0.2);
+}
+
+.cal-dn {
+  font-size: 11px; font-weight: 500;
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 10px;
+}
+
+.cal-day.win-day .cal-dn,
+.cal-day.loss-day .cal-dn { color: var(--text-2); }
+
+.cal-d-pnl {
+  font-size: 15px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1; margin-bottom: 5px;
+}
+
+.cal-day.win-day .cal-d-pnl { color: var(--green); }
+.cal-day.loss-day .cal-d-pnl { color: var(--red); }
+
+.cal-d-trades {
+  font-size: 9px; font-weight: 500;
+  color: var(--text-3); letter-spacing: 0.04em;
+}
+
+/* ─────────────────────────────────────────────
+   TRADE LOG
+───────────────────────────────────────────── */
+.log-pg { padding: 24px 28px; }
+.log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.log-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+
+.tbl-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th {
+  padding: 10px 14px; text-align: left;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-3); background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-2); }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--card-hover); }
+.tbl-long { color: var(--green); font-weight: 600; }
+.tbl-short { color: var(--red); font-weight: 600; }
+.tbl-pos { color: var(--green); font-weight: 600; }
+.tbl-neg { color: var(--red); font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   STATISTICS
+───────────────────────────────────────────── */
+.stats-pg { padding: 24px 28px; }
+.stats-title { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 20px; }
+.stats-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+.chart-label { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+
+/* ─────────────────────────────────────────────
+   RULES & PLAN
+───────────────────────────────────────────── */
+.rules-pg { padding: 0; }
+
+.rules-subnav {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0 28px;
+  position: sticky; top: 0; z-index: 10;
+}
+
+.r-tab {
+  padding: 14px 16px;
+  font-size: 11px; font-weight: 500;
+  color: var(--text-3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--t);
+}
+.r-tab:hover { color: var(--text-2); }
+.r-tab.on { color: var(--text-1); border-bottom-color: var(--text-1); }
+
+.rules-body { padding: 24px 28px; }
+.rpage { display: none; animation: fadeIn 0.22s var(--ease); }
+.rpage.on { display: block; }
+
+.acct-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+}
+.acct-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+.acct-label { font-size: 9px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+.acct-val { font-size: 22px; font-weight: 600; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; color: var(--text-1); }
+.acct-val.pos { color: var(--green); }
+.acct-val.neg { color: var(--red); }
+
+.rule-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.rule-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 9px; padding: 11px 14px;
+  transition: all var(--t);
+}
+.rule-item:hover { border-color: var(--border-hi); }
+.rule-num { font-size: 11px; font-weight: 700; color: var(--text-3); font-family: 'JetBrains Mono', monospace; min-width: 20px; }
+.rule-inp { flex: 1; background: none; border: none; outline: none; color: var(--text-1); font-size: 13px; font-family: 'DM Sans', sans-serif; }
+.rule-del { width: 20px; height: 20px; border-radius: 4px; background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--t); }
+.rule-item:hover .rule-del { opacity: 1; }
+
+.setup-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.setup-head { padding: 11px 16px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 10px; }
+.setup-name { flex: 1; background: none; border: none; outline: none; color: var(--text-1); font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; }
+.setup-del { width: 20px; height: 20px; border-radius: 4px; background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity var(--t); }
+.setup-card:hover .setup-del { opacity: 1; }
+.setup-body { padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.setup-field-label { font-size: 9px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+
+.add-btn {
+  width: 100%; padding: 10px;
+  border: 1px dashed var(--border-hi); border-radius: 8px;
+  background: none; color: var(--text-3);
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all var(--t);
+}
+.add-btn:hover { border-color: var(--text-3); color: var(--text-2); }
+
+.plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.plan-sec { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.plan-sec-head { padding: 11px 16px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.plan-sec-body { padding: 12px 16px; }
+
+/* ─────────────────────────────────────────────
+   MODAL
+───────────────────────────────────────────── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+}
+.modal-bg.on { display: flex; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border-hi);
+  border-radius: 14px; padding: 24px 28px;
+  width: 340px; max-width: 94vw;
+  box-shadow: var(--shadow-3);
+  animation: fadeIn 0.22s var(--ease);
+}
+
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 18px; letter-spacing: -0.02em; }
+.modal-inp { width: 100%; background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text-1); font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none; margin-bottom: 16px; transition: border-color var(--t); }
+.modal-inp:focus { border-color: var(--border-focus); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-cancel { padding: 7px 16px; border-radius: 7px; background: var(--input); border: 1px solid var(--border); color: var(--text-2); cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: all var(--t); }
+.btn-cancel:hover { border-color: var(--border-hi); color: var(--text-1); }
+.btn-ok { padding: 7px 16px; border-radius: 7px; background: var(--text-1); color: var(--bg); border: none; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: opacity var(--t); }
+.btn-ok:hover { opacity: 0.85; }
+.btn-delete { padding: 7px 18px; border-radius: 7px; background: #dc2626; color: #fff; border: none; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: background var(--t), transform 0.1s; }
+.btn-delete:hover { background: #b91c1c; }
+.btn-delete:active { transform: scale(0.97); }
+.confirm-modal { text-align: center; padding: 32px 28px; }
+.confirm-modal-icon { font-size: 32px; margin-bottom: 14px; }
+.confirm-modal-title { font-size: 17px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; letter-spacing: -0.02em; }
+.confirm-modal-sub { font-size: 12px; color: var(--text-3); margin-bottom: 24px; }
+.confirm-modal .modal-actions { justify-content: center; gap: 10px; }
+
+/* ─────────────────────────────────────────────
+   LIGHTBOX
+───────────────────────────────────────────── */
+.lb-bg {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.96);
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(16px);
+}
+.lb-bg.on { display: flex; }
+.lb-close { position: fixed; top: 16px; right: 20px; z-index: 10001; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--t); }
+.lb-close:hover { background: rgba(255,255,255,0.16); }
+.lb-arrow { position: fixed; top: 50%; transform: translateY(-50%); z-index: 10001; width: 40px; height: 40px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; color: rgba(255,255,255,0.6); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background var(--t); }
+.lb-arrow:hover { background: rgba(255,255,255,0.14); color: white; }
+.lb-prev { left: 14px; }
+.lb-next { right: 14px; }
+.lb-img-wrap { overflow: hidden; border-radius: 6px; max-width: 90vw; max-height: 88vh; cursor: zoom-in; }
+.lb-img-wrap.zoomed { cursor: zoom-out; }
+#lbImg { display: block; max-width: 90vw; max-height: 88vh; object-fit: contain; transform-origin: center; transition: transform 0.2s var(--ease); user-select: none; pointer-events: none; }
+.lb-hint { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); font-size: 10px; color: rgba(255,255,255,0.25); font-family: 'JetBrains Mono', monospace; pointer-events: none; letter-spacing: 0.04em; }
+
+/* No data */
+.no-data { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 40px; gap: 10px; }
+.no-data-bar { width: 32px; height: 1px; background: var(--border-hi); }
+.no-data-txt { font-size: 13px; color: var(--text-3); text-align: center; line-height: 1.7; }
+
+/* ── Notes Page ─────────────────────────────────────────────── */
+.notes-shell {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+/* Sidebar */
+.notes-sidebar {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+.notes-sb-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.notes-sb-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 0.06em;
+  color: var(--text-1);
+}
+.notes-new-btn {
+  padding: 5px 12px;
+  background: var(--text-1); color: var(--bg);
+  border: none; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: opacity var(--t);
+}
+.notes-new-btn:hover { opacity: 0.8; }
+
+.notes-list { flex: 1; overflow-y: auto; padding: 8px; }
+
+.note-item {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--t); margin-bottom: 2px;
+}
+.note-item:hover { background: var(--card); border-color: var(--border); }
+.note-item.on {
+  background: var(--card);
+  border-color: var(--border-hi);
+  /* blue gradient glow on active */
+  box-shadow: inset 0 0 0 1px rgba(96,165,250,0.2), 0 0 0 1px rgba(96,165,250,0.1);
+  background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(96,165,250,0.06) 100%);
+  border-color: rgba(96,165,250,0.25);
+}
+.note-item-title {
+  font-size: 12px; font-weight: 600; color: var(--text-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.note-item.on .note-item-title { color: #93c5fd; }
+.note-item-preview {
+  font-size: 10px; color: var(--text-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.note-item-ts {
+  font-size: 9px; color: var(--text-4);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 4px;
+}
+
+/* Editor */
+.notes-editor {
+  display: flex; flex-direction: column;
+  background: var(--bg); overflow: hidden;
+  position: relative;
+}
+
+.notes-editor-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; color: var(--text-4);
+}
+.notes-empty-icon { font-size: 40px; opacity: 0.3; }
+.notes-empty-txt  { font-size: 13px; }
+
+.notes-editor-active {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+
+.notes-editor-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 28px 0;
+  flex-shrink: 0;
+}
+
+.notes-title-inp {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px; letter-spacing: 0.06em;
+  color: var(--text-1);
+  background: transparent; border: none; outline: none;
+  flex: 1; min-width: 0;
+  /* blue gradient glow box */
+  background: linear-gradient(135deg, rgba(37,99,235,0.07) 0%, rgba(96,165,250,0.03) 100%);
+  border: 1px solid rgba(96,165,250,0.18);
+  border-radius: 10px;
+  padding: 10px 18px;
+  box-shadow: 0 0 24px rgba(37,99,235,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.notes-title-inp:focus {
+  border-color: rgba(96,165,250,0.4);
+  box-shadow: 0 0 32px rgba(37,99,235,0.14), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.notes-title-inp::placeholder { color: var(--text-4); }
+
+.notes-ts {
+  font-size: 9px; color: var(--text-4);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0; margin-left: 16px;
+}
+.notes-del-btn {
+  padding: 5px 12px;
+  background: transparent; color: var(--text-3);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; margin-left: 10px;
+  transition: all var(--t);
+}
+.notes-del-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+.notes-body-ta {
+  flex: 1; resize: none;
+  background: transparent; border: none; outline: none;
+  padding: 20px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; line-height: 1.75;
+  color: var(--text-1);
+  overflow-y: auto;
+}
+.notes-body-ta::placeholder { color: var(--text-4); }
+
+/* light mode tweaks */
+[data-theme="light"] .notes-sidebar { background: #f9f9fb; }
+[data-theme="light"] .notes-title-inp {
+  background: linear-gradient(135deg,rgba(37,99,235,0.05) 0%,rgba(96,165,250,0.02) 100%);
+  border-color: rgba(37,99,235,0.15);
+  box-shadow: 0 0 20px rgba(37,99,235,0.06);
+}
+[data-theme="light"] .note-item.on {
+  background: linear-gradient(135deg,rgba(37,99,235,0.08) 0%,rgba(96,165,250,0.04) 100%);
+  border-color: rgba(37,99,235,0.2);
+}
+[data-theme="light"] .note-item.on .note-item-title { color: #1d4ed8; }
+
+
+/* ── Account Params Bar ─────────────────────────────────────── */
+.acct-params-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  /* Blue gradient glow border effect */
+  box-shadow:
+    0 0 0 1px rgba(37,99,235,0.12),
+    0 0 32px rgba(37,99,235,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  background: linear-gradient(
+    145deg,
+    rgba(37,99,235,0.07) 0%,
+    rgba(15,23,42,0.0) 40%,
+    rgba(96,165,250,0.04) 100%
+  ), var(--surface);
+}
+
+.acct-param {
+  padding: 18px 22px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.acct-param:nth-child(3n) { border-right: none; }
+.acct-param:nth-child(4),
+.acct-param:nth-child(5),
+.acct-param:nth-child(6) { border-bottom: none; }
+
+.acct-param-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 6px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px; letter-spacing: 0.1em;
+}
+.acct-param-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; letter-spacing: 0.04em;
+  color: var(--text-1); line-height: 1;
+}
+.acct-param-val.danger  { color: #f87171; }
+.acct-param-val.success { color: #4ade80; }
+
+[data-theme="light"] .acct-params-bar {
+  background: linear-gradient(145deg, rgba(37,99,235,0.05) 0%, rgba(96,165,250,0.02) 100%), var(--surface);
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.1), 0 0 24px rgba(37,99,235,0.06);
+}
+[data-theme="light"] .acct-param-val.danger  { color: #dc2626; }
+[data-theme="light"] .acct-param-val.success { color: #16a34a; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-sq">LF</div>
+      <div class="logo-info">
+        <div class="logo-name">Trading Journal</div>
+        <div class="logo-phase">Lucid Flex 50 · Eval</div>
+      </div>
+    </div>
+    <nav class="topbar-nav">
+      <button class="nav-btn on" onclick="goPage('home',this)">Dashboard</button>
+      <button class="nav-btn" onclick="goPage('journal',this)">Journal</button>
+      <button class="nav-btn" onclick="goPage('calendar',this)">Calendar</button>
+      <button class="nav-btn" onclick="goPage('log',this)">Trade Log</button>
+      <button class="nav-btn" onclick="goPage('stats',this)">Statistics</button>
+      <button class="nav-btn" onclick="goPage('rules',this)">Rules &amp; Plan</button>
+      <button class="nav-btn" onclick="goPage('notes',this)">✎ Notes</button>
+    </nav>
+    <div class="topbar-right">
+      <span class="save-flash" id="saveInd">Saved</span>
+      <div class="chip">$50K &middot; Eval</div>
+      <div class="theme-sw">
+        <div class="theme-opt on" id="tDark" onclick="setTheme('dark')">Dark</div>
+        <div class="theme-opt" id="tLight" onclick="setTheme('light')">Light</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-label">Sessions</div>
+      <button class="btn-add" onclick="openModal()">+ Day</button>
+    </div>
+    <div class="session-list" id="sessionList"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="page on" id="page-home">
+      <div class="home-pg">
+        <div class="hero">
+          <div class="hero-label">Lucid Flex 50 &mdash; Evaluation Phase</div>
+          <div class="hero-amount" id="heroAmt">$50,000</div>
+          <div class="hero-meta">Account Value &nbsp;·&nbsp; Pass Target $3,000 &nbsp;·&nbsp; Max Drawdown $2,000</div>
+        </div>
+
+        <div class="acct-params-bar">
+          <div class="acct-param">
+            <div class="acct-param-label">Account Size</div>
+            <div class="acct-param-val">$50,000</div>
+          </div>
+          <div class="acct-param">
+            <div class="acct-param-label">Max Daily Loss</div>
+            <div class="acct-param-val danger">$1,000</div>
+          </div>
+          <div class="acct-param">
+            <div class="acct-param-label">Max Drawdown</div>
+            <div class="acct-param-val danger">$2,000</div>
+          </div>
+          <div class="acct-param">
+            <div class="acct-param-label">Clear Eval Target</div>
+            <div class="acct-param-val success">$3,000</div>
+          </div>
+          <div class="acct-param">
+            <div class="acct-param-label">Max Trades / Day</div>
+            <div class="acct-param-val">2</div>
+          </div>
+          <div class="acct-param">
+            <div class="acct-param-label">Account Type</div>
+            <div class="acct-param-val">Evaluation</div>
+          </div>
+        </div>
+
+        <div class="eval-bar-section">
+          <div class="eval-row">
+            <div class="eval-lhs">
+              <div class="eval-lhs-label">Eval Progress</div>
+              <div class="eval-lhs-val" id="evalPnlVal">$0.00</div>
+            </div>
+            <div class="eval-rhs">
+              <div class="eval-rhs-label">Target</div>
+              <div class="eval-rhs-val">$3,000.00</div>
+            </div>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" id="evalFill" style="width:0%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;">
+            <span id="evalPct">0% complete</span>
+            <span id="evalRem">$3,000 remaining</span>
+          </div>
+
+          <div style="margin-top:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0;">
+              <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;">Drawdown Used</div>
+              <div style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;" id="ddLabel">$0.00 of $2,000</div>
+            </div>
+            <div class="prog-track">
+              <div class="prog-fill red" id="ddFill" style="width:0%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;">
+              <span id="ddPct" style="color:var(--text-3);">0% used</span>
+              <span id="ddRoom" style="color:var(--green);">$2,000 remaining</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-stats">
+          <div class="tile"><div class="tile-label">Net P&amp;L</div><div class="tile-val" id="hs-pnl">$0.00</div></div>
+          <div class="tile"><div class="tile-label">Win Rate</div><div class="tile-val" id="hs-wr">0%</div></div>
+          <div class="tile"><div class="tile-label">Profit Factor</div><div class="tile-val" id="hs-pf">&mdash;</div></div>
+          <div class="tile"><div class="tile-label">Days Traded</div><div class="tile-val" id="hs-days">0</div></div>
+          <div class="tile"><div class="tile-label">Total Trades</div><div class="tile-val" id="hs-trades">0</div></div>
+        </div>
+
+        <div class="home-bottom">
+          <div class="sec-card">
+            <div class="sec-card-head">Recent Sessions</div>
+            <div class="sec-card-body" id="recentSessions"></div>
+          </div>
+          <div class="sec-card">
+            <div class="sec-card-head">Performance</div>
+            <div class="sec-card-body" id="perfBreakdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="page" id="page-journal">
+      <div class="journal-pg">
+        <div id="jNoDay" class="no-data">
+          <div class="no-data-bar"></div>
+          <div class="no-data-txt">No session selected<br>Add a day from the sidebar to begin journalling</div>
+          <div class="no-data-bar"></div>
+        </div>
+        <div id="jDay" style="display:none;">
+          <div class="day-header">
+            <div class="day-title" id="dayTitle"></div>
+          </div>
+          <div class="day-stats" id="dayStats">
+            <div class="ds-tile"><div class="ds-label">Day P&amp;L</div><div class="ds-val" id="ds-pnl">—</div></div>
+            <div class="ds-tile"><div class="ds-label">Win Rate</div><div class="ds-val" id="ds-wr">—</div></div>
+            <div class="ds-tile"><div class="ds-label">Profit Factor</div><div class="ds-val" id="ds-pf">—</div></div>
+            <div class="ds-tile"><div class="ds-label">Avg R:R</div><div class="ds-val" id="ds-rr">—</div></div>
+            <div class="ds-tile"><div class="ds-label">Account</div><div class="ds-val" id="ds-acct">$50,000</div></div>
+            <div class="ds-tile"><div class="ds-label">DD Used</div><div class="ds-val" id="ds-dd">$0</div></div>
+          </div>
+
+          <div class="pm-card">
+            <div class="pm-head">
+              <div class="pm-title">Pre-Market Notes</div>
+              <div class="emo-row" id="emoRow">
+                <div class="emo-btn" onclick="setEmo(this,'Focused')">Focused</div>
+                <div class="emo-btn" onclick="setEmo(this,'Nervous')">Nervous</div>
+                <div class="emo-btn" onclick="setEmo(this,'Neutral')">Neutral</div>
+                <div class="emo-btn" onclick="setEmo(this,'Confident')">Confident</div>
+                <div class="emo-btn" onclick="setEmo(this,'Cautious')">Cautious</div>
+              </div>
+            </div>
+            <div class="pm-body">
+              <textarea class="ta" id="preNote" placeholder="Market bias, key levels, economic events, session plan..." style="min-height:70px;"></textarea>
+            </div>
+          </div>
+
+          <div class="eyebrow" style="margin-bottom:8px;">Trade 01</div>
+          <div id="tc0"></div>
+          <div class="eyebrow" style="margin:16px 0 8px;">Trade 02</div>
+          <div id="tc1"></div>
+
+          <div class="pm-card" style="margin-top:16px;">
+            <div class="pm-head"><div class="pm-title">End of Day Review</div></div>
+            <div class="pm-body">
+              <textarea class="ta" id="eodNote" placeholder="What worked, what didn't, lessons learned..." style="min-height:90px;"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="page" id="page-calendar">
+      <div class="cal-pg">
+        <div class="cal-month-stats" id="calStats"></div>
+        <div class="cal-header">
+          <button class="cal-nav-btn" onclick="calPrev()">&#8249;</button>
+          <button class="cal-nav-btn" onclick="calNext()">&#8250;</button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="cal-today-btn" onclick="calToday()">Today</button>
+        </div>
+        <div class="cal-grid-wrap">
+          <div class="cal-dow-row">
+            <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div>
+            <div class="cal-dow">Tue</div><div class="cal-dow">Wed</div>
+            <div class="cal-dow">Thu</div><div class="cal-dow">Fri</div>
+            <div class="cal-dow">Sat</div>
+          </div>
+          <div class="cal-days" id="calDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="page" id="page-log">
+      <div class="log-pg">
+        <div class="log-header">
+          <div class="log-title">Trade Log</div>
+          <div style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;" id="logCount"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>#</th><th>Date</th><th>Symbol</th><th>Direction</th>
+              <th>Entry</th><th>Exit</th><th>Size</th><th>SL</th><th>TP</th>
+              <th>P&amp;L</th><th>R:R</th><th>Outcome</th><th>Setup</th>
+            </tr></thead>
+            <tbody id="logBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="page" id="page-stats">
+      <div class="stats-pg">
+        <div class="stats-title">Statistics</div>
+        <div class="stats-grid-4">
+          <div class="tile"><div class="tile-label">Total P&amp;L</div><div class="tile-val" id="st-pnl">$0</div></div>
+          <div class="tile"><div class="tile-label">Win Rate</div><div class="tile-val" id="st-wr">0%</div></div>
+          <div class="tile"><div class="tile-label">Profit Factor</div><div class="tile-val" id="st-pf">&mdash;</div></div>
+          <div class="tile"><div class="tile-label">Total Trades</div><div class="tile-val" id="st-total">0</div></div>
+        </div>
+        <div class="stats-grid-4">
+          <div class="tile"><div class="tile-label">Best Trade</div><div class="tile-val pos" id="st-best">$0</div></div>
+          <div class="tile"><div class="tile-label">Worst Trade</div><div class="tile-val neg" id="st-worst">$0</div></div>
+          <div class="tile"><div class="tile-label">Avg Win</div><div class="tile-val pos" id="st-aw">$0</div></div>
+          <div class="tile"><div class="tile-label">Avg Loss</div><div class="tile-val neg" id="st-al">$0</div></div>
+        </div>
+        <div class="chart-wrap"><div class="chart-label">Equity Curve</div><canvas id="eqChart" height="150"></canvas></div>
+        <div class="chart-wrap"><div class="chart-label">Daily P&amp;L</div><canvas id="pnlChart" height="100"></canvas></div>
+      </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="page" id="page-rules">
+      <div class="rules-pg">
+        <div class="rules-subnav">
+          <div class="r-tab on" onclick="rulesTab('account',this)">Account</div>
+          <div class="r-tab" onclick="rulesTab('rules',this)">Rules</div>
+          <div class="r-tab" onclick="rulesTab('setups',this)">Setups</div>
+          <div class="r-tab" onclick="rulesTab('plan',this)">Trading Plan</div>
+          <div class="r-tab" onclick="rulesTab('mindset',this)">Mindset</div>
+        </div>
+        <div class="rules-body">
+
+          <div class="rpage on" id="rp-account">
+            <div class="acct-card">
+              <div class="acct-grid">
+                <div><div class="acct-label">Account Size</div><div class="acct-val">$50,000</div></div>
+                <div><div class="acct-label">Max Daily Loss</div><div class="acct-val neg">$1,000</div></div>
+                <div><div class="acct-label">Max Drawdown</div><div class="acct-val neg">$2,000</div></div>
+                <div><div class="acct-label">Clear Eval Target</div><div class="acct-val pos">$3,000</div></div>
+                <div><div class="acct-label">Max Trades / Day</div><div class="acct-val">2</div></div>
+                <div><div class="acct-label">Account Type</div><div class="acct-val" style="font-size:16px;">Evaluation</div></div>
+              </div>
+            </div>
+            <div class="acct-card">
+              <div class="acct-label" style="margin-bottom:14px;">Live Eval Progress</div>
+              <div class="prog-track"><div class="prog-fill green" id="rp-fill" style="width:0%"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;" id="rp-labels">
+                <span>$0 / $3,000</span><span>0% complete</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rpage" id="rp-rules">
+            <div style="font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-0.02em;">Trading Rules</div>
+            <div class="rule-list" id="ruleList"></div>
+            <button class="add-btn" onclick="addRule()">+ Add Rule</button>
+          </div>
+
+          <div class="rpage" id="rp-setups">
+            <div style="font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-0.02em;">Trade Setups</div>
+            <div id="setupList"></div>
+            <button class="add-btn" onclick="addSetup()">+ Add Setup</button>
+          </div>
+
+          <div class="rpage" id="rp-plan">
+            <div style="font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-0.02em;">Trading Plan</div>
+            <div class="plan-grid">
+              <div class="plan-sec"><div class="plan-sec-head">Pre-Market Routine</div><div class="plan-sec-body"><textarea class="ta" id="planPre" placeholder="Steps before market open..." style="min-height:150px;"></textarea></div></div>
+              <div class="plan-sec"><div class="plan-sec-head">Entry Criteria</div><div class="plan-sec-body"><textarea class="ta" id="planEntry" placeholder="What must be true before entering..." style="min-height:150px;"></textarea></div></div>
+              <div class="plan-sec"><div class="plan-sec-head">Exit Criteria</div><div class="plan-sec-body"><textarea class="ta" id="planExit" placeholder="When to exit..." style="min-height:150px;"></textarea></div></div>
+              <div class="plan-sec"><div class="plan-sec-head">Risk Management</div><div class="plan-sec-body"><textarea class="ta" id="planRisk" placeholder="Position sizing, max risk..." style="min-height:150px;"></textarea></div></div>
+            </div>
+          </div>
+
+          <div class="rpage" id="rp-mindset">
+            <div style="font-size:18px;font-weight:600;margin-bottom:16px;letter-spacing:-0.02em;">Mindset &amp; Psychology</div>
+            <div class="plan-grid">
+              <div class="plan-sec"><div class="plan-sec-head">Daily Affirmations</div><div class="plan-sec-body"><textarea class="ta" id="mindAff" placeholder="Read before trading..." style="min-height:150px;"></textarea></div></div>
+              <div class="plan-sec"><div class="plan-sec-head">Psychological Pitfalls</div><div class="plan-sec-body"><textarea class="ta" id="mindPit" placeholder="Patterns to watch..." style="min-height:150px;"></textarea></div></div>
+              <div class="plan-sec" style="grid-column:1/-1;"><div class="plan-sec-head">Notes to Self</div><div class="plan-sec-body"><textarea class="ta" id="mindNotes" placeholder="Anything else..." style="min-height:110px;"></textarea></div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- NOTES PAGE -->
+    <div class="page" id="page-notes">
+      <div class="notes-shell">
+
+        <!-- LEFT: note list -->
+        <div class="notes-sidebar">
+          <div class="notes-sb-head">
+            <span class="notes-sb-title">Notes</span>
+            <button class="notes-new-btn" onclick="newNote()">+ New</button>
+          </div>
+          <div id="notesList" class="notes-list"></div>
+        </div>
+
+        <!-- RIGHT: editor -->
+        <div class="notes-editor" id="notesEditor">
+          <div class="notes-editor-empty" id="notesEmpty">
+            <div class="notes-empty-icon">✎</div>
+            <div class="notes-empty-txt">Select a note or create a new one</div>
+          </div>
+          <div class="notes-editor-active" id="notesActive" style="display:none;">
+            <div class="notes-editor-topbar">
+              <input class="notes-title-inp" id="notesTitleInp" placeholder="Note title..." oninput="updateNoteTitle(this.value)">
+              <div style="display:flex;gap:8px;align-items:center;">
+                <span class="notes-ts" id="notesTs"></span>
+                <button class="notes-del-btn" onclick="deleteNote()">🗑 Delete</button>
+              </div>
+            </div>
+            <textarea class="notes-body-ta" id="notesBodyTa" placeholder="Start writing..." oninput="updateNoteBody(this.value)"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-title">New Trading Session</div>
+    <input type="date" class="modal-inp" id="modalDate">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-ok" onclick="confirmNewDay()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-bg" id="confirmDeleteModal" onclick="if(event.target===this)closeConfirmDelete()">
+  <div class="modal confirm-modal">
+    <div class="confirm-modal-icon">🗑</div>
+    <div class="confirm-modal-title" id="confirmDeleteTitle">Are you sure?</div>
+    <div class="confirm-modal-sub" id="confirmDeleteSub">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeConfirmDelete()">Cancel</button>
+      <button class="btn-delete" id="confirmDeleteBtn" onclick="executeDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb-bg" id="lightbox">
+  <div id="lbClickBg" style="position:absolute;inset:0;" onclick="closeLb()"></div>
+  <button class="lb-close" onclick="closeLb()">✕</button>
+  <button class="lb-arrow lb-prev" onclick="lbNav(-1,event)">&#8249;</button>
+  <div class="lb-img-wrap" id="lbWrap" onclick="lbZoom(event)">
+    <img id="lbImg" src="" alt="">
+  </div>
+  <button class="lb-arrow lb-next" onclick="lbNav(1,event)">&#8250;</button>
+  <div class="lb-hint">Click to zoom &nbsp;·&nbsp; Scroll to zoom &nbsp;·&nbsp; Arrow keys to navigate &nbsp;·&nbsp; ESC to close</div>
+</div>
+
+<script>
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const STORE = 'lf50_journal_v2';
+const RULES_STORE = 'lf50_rules_v2';
+
+let S = {
+  days: [],
+  activeId: null,
+};
+
+let RS = {
+  rules: [],
+  setups: [],
+  planPre:'', planEntry:'', planExit:'', planRisk:'',
+  mindAff:'', mindPit:'', mindNotes:'',
+};
+
+/* ============================================================
+   PERSIST
+   ============================================================ */
+
+function save() {
+  saveActiveDay();
+  try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e){}
+  try { captureRulesState(); localStorage.setItem(RULES_STORE, JSON.stringify(RS)); } catch(e){}
+  flashSaved();
+}
+
+function load() {
+  try { const d = localStorage.getItem(STORE); if(d) S = JSON.parse(d); } catch(e){}
+  try { const d = localStorage.getItem(RULES_STORE); if(d) RS = JSON.parse(d); } catch(e){}
+}
+
+function flashSaved() {
+  const el = document.getElementById('saveInd');
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = '0', 1800);
+}
+
+function captureRulesState() {
+  ['planPre','planEntry','planExit','planRisk','mindAff','mindPit','mindNotes'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) RS[id] = el.value;
+  });
+}
+
+// Auto-save
+setInterval(save, 8000);
+document.addEventListener('change', () => { clearTimeout(window._ast); window._ast = setTimeout(save, 800); });
+document.addEventListener('input',  () => { clearTimeout(window._ast); window._ast = setTimeout(save, 800); });
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('tDark').classList.toggle('on', t === 'dark');
+  document.getElementById('tLight').classList.toggle('on', t === 'light');
+  try { localStorage.setItem('lf50_theme', t); } catch(e) {}
+  // Update canvas bg for notes
+  const canvas = document.getElementById('noteCanvas');
+  if(canvas && _canvasReady) {
+    canvas.style.background = t === 'light' ? '#ffffff' : 'transparent';
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  setTheme(isDark ? 'light' : 'dark');
+}
+
+function loadTheme() {
+  try {
+    const t = localStorage.getItem('lf50_theme') || 'dark';
+    setTheme(t);
+  } catch(e) { setTheme('dark'); }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+function goPage(page, el) {
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  if(el) el.classList.add('on');
+  document.getElementById('page-' + page).classList.add('on');
+  if(page === 'home')     renderHome();
+  if(page === 'calendar') renderCalendar();
+  if(page === 'log')      renderLog();
+  if(page === 'stats')    renderStats();
+  if(page === 'rules')    applyRulesState();
+  if(page === 'notes')    { if(!_notes.length) notesLoad(); renderNotesList(); }
+}
+
+/* ============================================================
+   DEFAULT OBJECTS
+   ============================================================ */
+function defTrade() {
+  return { symbol:'', dir:'', setup:'', entry:'', exit:'', size:'',
+           sl:'', tp:'', pnl:'', rr:'', outcome:'', grade:0,
+           entryTime:'', exitTime:'', note:'', tags:[], images:[] };
+}
+
+function defDay(date) {
+  return { id: Date.now()+'_'+Math.random().toString(36).slice(2,6),
+           date, emotion:'', preNote:'', eodNote:'',
+           trades:[defTrade(), defTrade()] };
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal() {
+  document.getElementById('modalDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('modal').classList.add('on');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('on'); }
+
+function confirmNewDay() {
+  const date = document.getElementById('modalDate').value;
+  if(!date) return;
+  const ex = S.days.find(d => d.date === date);
+  if(ex) { selectDay(ex.id); closeModal(); return; }
+  const day = defDay(date);
+  S.days.push(day);
+  S.days.sort((a,b) => b.date.localeCompare(a.date));
+  renderSidebar();
+  selectDay(day.id);
+  closeModal();
+  save();
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function renderSidebar() {
+  const el = document.getElementById('sessionList');
+  el.innerHTML = '';
+  S.days.forEach(day => {
+    const pnl = dayPnl(day);
+    const trades = tradedCount(day);
+    const div = document.createElement('div');
+    div.className = 'session-item' + (day.id === S.activeId ? ' active':'');
+    div.innerHTML = `
+      <div class="si-row1">
+        <div class="si-date">${fmtShort(day.date)}</div>
+        <div class="si-pnl ${pnl>0?'pos':pnl<0?'neg':'zero'}">${pnl!==0?(pnl>0?'+':'')+'$'+Math.abs(pnl)%1===0?Math.abs(pnl).toFixed(0):Math.abs(pnl).toFixed(2):'—'}</div>
+      </div>
+      <div class="si-meta">${trades} trade${trades!==1?'s':''}</div>
+      <button class="si-del" onclick="deleteDay(event,'${day.id}')">✕</button>`;
+    div.onclick = (e) => { if(!e.target.classList.contains('del-day-btn')) selectDay(day.id); };
+    el.appendChild(div);
+  });
+}
+
+function deleteDay(e, id) {
+  e.stopPropagation();
+  confirmDelete(
+    'Delete Session?',
+    'This trading session and all its data will be permanently removed.',
+    function() {
+      S.days = S.days.filter(function(d){ return d.id !== id; });
+      if(S.activeId === id) {
+        S.activeId = null;
+        document.getElementById('jDay').style.display = 'none';
+        document.getElementById('jNoDay').style.display = 'flex';
+      }
+      renderSidebar();
+      save();
+    }
+  );
+}
+
+/* ============================================================
+   SELECT DAY
+   ============================================================ */
+function selectDay(id) {
+  saveActiveDay();
+  S.activeId = id;
+  renderSidebar();
+  const day = S.days.find(d => d.id === id);
+  if(!day) return;
+
+  // Make sure journal page is shown
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b => { if(b.textContent.trim()==='Journal') b.classList.add('on'); });
+  document.getElementById('page-journal').classList.add('on');
+
+  document.getElementById('jNoDay').style.display = 'none';
+  document.getElementById('jDay').style.display = 'block';
+  document.getElementById('dayTitle').textContent = fmtLong(day.date);
+  document.getElementById('preNote').value = day.preNote || '';
+  document.getElementById('eodNote').value = day.eodNote || '';
+
+  document.querySelectorAll('.emo-btn').forEach(b => b.classList.toggle('on', b.textContent === day.emotion));
+
+  renderTradeCard(0, day);
+  renderTradeCard(1, day);
+  updateDayStats(day);
+}
+
+function saveActiveDay() {
+  if(!S.activeId) return;
+  const day = S.days.find(d => d.id === S.activeId);
+  if(!day) return;
+  day.preNote = document.getElementById('preNote')?.value || '';
+  day.eodNote = document.getElementById('eodNote')?.value || '';
+}
+
+/* ============================================================
+   TRADE CARD RENDER
+   ============================================================ */
+function renderTradeCard(idx, day) {
+  const t = day.trades[idx];
+  const pnl = parseFloat(t.pnl)||0;
+  const pnlCls = pnl>0?'win':pnl<0?'loss':'neu';
+  const pnlTxt = pnl!==0?fmt$(pnl):'—';
+
+  document.getElementById('tc'+idx).innerHTML = `
+  <div class="tc-wrap">
+    <div class="tc-head">
+      <div class="tc-badge">Trade 0${idx+1}</div>
+      <div class="pnl-chip ${pnlCls}" id="chip${idx}">${pnlTxt}</div>
+    </div>
+    <div class="tc-body">
+
+      <div class="tc-screenshots">
+        <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px;">Chart Screenshots</div>
+        <div class="upload-zone" id="uploadZone${idx}" style="display:${t.images&&t.images.length?'none':'flex'};">
+          <div class="uz-icon">+</div>
+          <div>
+            <div class="uz-text">Click or drag screenshots here</div>
+            <div class="uz-hint">Click to open fullscreen · Scroll to zoom · ESC to close</div>
+          </div>
+          <input type="file" accept="image/*" multiple onchange="handleImgs(event,${idx})">
+        </div>
+        <div class="img-grid" id="imgGrid${idx}">${renderThumbs(t.images,idx)}</div>
+        <label class="add-more-btn" id="addMore${idx}" style="display:${t.images&&t.images.length?'flex':'none'};">
+          + Add More Screenshots
+          <input type="file" accept="image/*" multiple style="display:none;" onchange="handleImgs(event,${idx})">
+        </label>
+      </div>
+
+      <div class="tc-fields">
+        <div class="fields-col">
+          <div class="field-row"><div class="fl">Symbol</div><input class="inp" placeholder="NQ, ES, EUR/USD..." value="${t.symbol}" onchange="ut(${idx},'symbol',this.value)"></div>
+          <div class="field-row"><div class="fl">Direction</div>
+            <div class="seg">
+              <button class="seg-btn long ${t.dir==='LONG'?'on':''}" onclick="setDir(${idx},'LONG',this)">Long</button>
+              <button class="seg-btn short ${t.dir==='SHORT'?'on':''}" onclick="setDir(${idx},'SHORT',this)">Short</button>
+            </div>
+          </div>
+          <div class="field-row"><div class="fl">Entry</div><input class="inp" placeholder="0.00" value="${t.entry}" onchange="ut(${idx},'entry',this.value);autoPnl(${idx});autoRR(${idx})"></div>
+          <div class="field-row"><div class="fl">Exit</div><input class="inp" placeholder="0.00" value="${t.exit}" onchange="ut(${idx},'exit',this.value);autoPnl(${idx});autoRR(${idx})"></div>
+          <div class="field-row"><div class="fl">Size</div><input class="inp" placeholder="Lots / Contracts" value="${t.size}" onchange="ut(${idx},'size',this.value);autoPnl(${idx})"></div>
+          <div class="field-row"><div class="fl">Stop Loss</div><input class="inp" placeholder="0.00" value="${t.sl}" onchange="ut(${idx},'sl',this.value);autoRR(${idx})"></div>
+          <div class="field-row"><div class="fl">Take Profit</div><input class="inp" placeholder="0.00" value="${t.tp}" onchange="ut(${idx},'tp',this.value);autoRR(${idx})"></div>
+          <div class="field-row"><div class="fl">P&amp;L ($)</div><input class="inp" placeholder="Auto or manual" value="${t.pnl}" id="pnlInp${idx}" onchange="ut(${idx},'pnl',this.value);refreshChip(${idx});updateDayStats(getActiveDay())"></div>
+          <div class="field-row"><div class="fl">R : R</div><input class="inp" placeholder="Auto-calc" value="${t.rr}" id="rrInp${idx}" onchange="ut(${idx},'rr',this.value)"></div>
+          <div class="field-row"><div class="fl">Setup</div><input class="inp" placeholder="Breakout, OB, VWAP..." value="${t.setup}" onchange="ut(${idx},'setup',this.value)"></div>
+          <div class="field-row"><div class="fl">Entry Time</div><input class="inp" type="time" value="${t.entryTime}" onchange="ut(${idx},'entryTime',this.value)"></div>
+          <div class="field-row"><div class="fl">Exit Time</div><input class="inp" type="time" value="${t.exitTime}" onchange="ut(${idx},'exitTime',this.value)"></div>
+        </div>
+        <div class="fields-col">
+          <div class="field-row"><div class="fl">Outcome</div>
+            <div class="seg">
+              <button class="seg-btn win ${t.outcome==='WIN'?'on':''}" onclick="setOut(${idx},'WIN',this)">Win</button>
+              <button class="seg-btn loss ${t.outcome==='LOSS'?'on':''}" onclick="setOut(${idx},'LOSS',this)">Loss</button>
+              <button class="seg-btn be ${t.outcome==='BE'?'on':''}" onclick="setOut(${idx},'BE',this)">B/E</button>
+            </div>
+          </div>
+          <div class="field-row"><div class="fl">Grade</div>
+            <div class="stars" id="stars${idx}">
+              ${[1,2,3,4,5].map(i=>`<span class="star ${i<=t.grade?'on':''}" onclick="setGrade(${idx},${i})">★</span>`).join('')}
+            </div>
+          </div>
+          <div class="field-row"><div class="fl">Tags</div>
+            <div class="tag-wrap" id="tagWrap${idx}" onclick="document.getElementById('taginp${idx}').focus()">
+              ${(t.tags||[]).map((tg,ti)=>`<span class="tag">${tg}<span class="tag-x" onclick="rmTag(${idx},${ti})">×</span></span>`).join('')}
+              <input class="tag-inp" id="taginp${idx}" placeholder="tag, enter..." onkeydown="handleTag(event,${idx})">
+            </div>
+          </div>
+          <div style="margin-top:6px;">
+            <div style="font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:7px;">Notes</div>
+            <textarea class="ta" style="min-height:210px;" placeholder="Entry reason, market context, what you observed, emotional state..." onchange="ut(${idx},'note',this.value)">${t.note||''}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+
+function renderThumbs(imgs, idx) {
+  if(!imgs||!imgs.length) return '';
+  return imgs.map((src,i)=>`<div class="img-thumb" onclick="openLightbox(${idx},${i})"><img src="${src}" alt="screenshot ${i+1}"><div class="img-del" onclick="event.stopPropagation();rmImg(${idx},${i})">✕</div></div>`).join('');
+}
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+
+
+function openLightbox(tradeIdx, imgIdx) {
+  const day = getActiveDay(); if(!day) return;
+  if(!day.trades[tradeIdx].images||!day.trades[tradeIdx].images.length) return;
+  _lbTrade=tradeIdx; _lbImg=imgIdx; _lbZ=1;
+  const img = document.getElementById('lbImg');
+  img.src = day.trades[tradeIdx].images[imgIdx];
+  img.style.transform = 'scale(1)';
+  document.getElementById('lbWrap').classList.remove('zoomed');
+  document.getElementById('lightbox').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+
+
+
+function closeLb() {
+  document.getElementById('lightbox').classList.remove('on');
+  document.body.style.overflow='';
+  _lbZ=1;
+  const img=document.getElementById('lbImg');
+  if(img){img.style.transform='scale(1)';}
+  document.getElementById('lbWrap').classList.remove('zoomed');
+}
+
+function closeLightbox(e) { closeLb(); }
+function closeLightboxDirect() { closeLb(); }
+function _closeLb() { closeLb(); }
+
+function lbZoom(e) {
+  e.stopPropagation();
+  const img=document.getElementById('lbImg');
+  const wrap=document.getElementById('lbWrap');
+  if(_lbZ===1){_lbZ=2.5;}
+  else if(_lbZ<4){_lbZ=4;}
+  else{_lbZ=1;}
+  img.style.transform=`scale(${_lbZ})`;
+  wrap.classList.toggle('zoomed',_lbZ>1);
+}
+
+function lbNav(dir,e){
+  if(e) e.stopPropagation();
+  const day=getActiveDay(); if(!day) return;
+  const imgs=day.trades[_lbTrade].images;
+  _lbImg=(_lbImg+dir+imgs.length)%imgs.length;
+  _lbZ=1;
+  const img=document.getElementById('lbImg');
+  img.src=imgs[_lbImg];
+  img.style.transform='scale(1)';
+  document.getElementById('lbWrap').classList.remove('zoomed');
+}
+
+document.addEventListener('wheel',e=>{
+  const lb=document.getElementById('lightbox');
+  if(!lb||!lb.classList.contains('on')) return;
+  e.preventDefault();
+  _lbZ=Math.max(1,Math.min(8,_lbZ+(e.deltaY<0?0.3:-0.3)));
+  document.getElementById('lbImg').style.transform=`scale(${_lbZ})`;
+  document.getElementById('lbWrap').classList.toggle('zoomed',_lbZ>1);
+},{passive:false});
+
+document.addEventListener('keydown',e=>{
+  const lb=document.getElementById('lightbox');
+  if(!lb||!lb.classList.contains('on')) return;
+  if(e.key==='Escape') closeLb();
+  if(e.key==='ArrowLeft') lbNav(-1,null);
+  if(e.key==='ArrowRight') lbNav(1,null);
+});
+
+/* ============================================================
+   TRADE LOGIC
+   ============================================================ */
+function getActiveDay() { return S.days.find(d => d.id === S.activeId); }
+
+function ut(idx, key, val) {
+  const day = getActiveDay(); if(!day) return;
+  day.trades[idx][key] = val;
+}
+
+function setDir(idx, dir, btn) {
+  ut(idx, 'dir', dir);
+  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  autoPnl(idx);
+}
+
+function setOut(idx, out, btn) {
+  ut(idx, 'outcome', out);
+  btn.closest('.seg').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const day = getActiveDay(); if(day) updateDayStats(day);
+}
+
+function setGrade(idx, g) {
+  ut(idx, 'grade', g);
+  document.querySelectorAll(`#stars${idx} .star`).forEach((s,i)=>s.classList.toggle('on',i<g));
+}
+
+function autoPnl(idx) {
+  const day = getActiveDay(); if(!day) return;
+  const t = day.trades[idx];
+  const e = parseFloat(t.entry), x = parseFloat(t.exit), sz = parseFloat(t.size);
+  if(!isNaN(e)&&!isNaN(x)&&!isNaN(sz)&&sz>0) {
+    const dir = t.dir==='SHORT'?-1:1;
+    const pnl = parseFloat(((x-e)*sz*dir).toFixed(2));
+    t.pnl = pnl;
+    const inp = document.getElementById('pnlInp'+idx);
+    if(inp) inp.value = pnl;
+    refreshChip(idx);
+    updateDayStats(day);
+  }
+}
+
+function autoRR(idx) {
+  const day = getActiveDay(); if(!day) return;
+  const t = day.trades[idx];
+  const e = parseFloat(t.entry), sl = parseFloat(t.sl), tp = parseFloat(t.tp);
+  if(!isNaN(e)&&!isNaN(sl)&&!isNaN(tp)) {
+    const risk = Math.abs(e-sl), rew = Math.abs(tp-e);
+    if(risk>0) {
+      const rr = (rew/risk).toFixed(2)+'R';
+      t.rr = rr;
+      const inp = document.getElementById('rrInp'+idx);
+      if(inp) inp.value = rr;
+    }
+  }
+}
+
+function refreshChip(idx) {
+  const day = getActiveDay(); if(!day) return;
+  const pnl = parseFloat(day.trades[idx].pnl)||0;
+  const chip = document.getElementById('chip'+idx);
+  if(!chip) return;
+  chip.className = 'trade-pnl-chip '+(pnl>0?'win':pnl<0?'loss':'neutral');
+  chip.textContent = pnl!==0?fmt$(pnl):'—';
+}
+
+function handleTag(e, idx) {
+  if((e.key==='Enter'||e.key===',')&&e.target.value.trim()) {
+    e.preventDefault();
+    const day = getActiveDay(); if(!day) return;
+    const tag = e.target.value.trim().replace(',','');
+    if(!day.trades[idx].tags) day.trades[idx].tags=[];
+    day.trades[idx].tags.push(tag);
+    e.target.value='';
+    renderTradeCard(idx, day);
+  }
+}
+
+function rmTag(idx, ti) {
+  const day = getActiveDay(); if(!day) return;
+  day.trades[idx].tags.splice(ti,1);
+  renderTradeCard(idx, day);
+}
+
+function handleImgs(e, idx) {
+  const day = getActiveDay(); if(!day) return;
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  let loaded = 0;
+  files.forEach(f=>{
+    const r = new FileReader();
+    r.onload = ev => {
+      if(!day.trades[idx].images) day.trades[idx].images=[];
+      day.trades[idx].images.push(ev.target.result);
+      loaded++;
+      if(loaded === files.length) {
+        // Re-render entire trade card to reflect new layout
+        renderTradeCard(idx, day);
+        save();
+      }
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function rmImg(idx, i) {
+  const day = getActiveDay(); if(!day) return;
+  day.trades[idx].images.splice(i,1);
+  document.getElementById('imgGrid'+idx).innerHTML = renderThumbs(day.trades[idx].images,idx);
+}
+
+function setEmo(btn, emo) {
+  const day = getActiveDay(); if(day) day.emotion = emo;
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('on', b.textContent===emo));
+}
+
+/* ============================================================
+   DAY STATS
+   ============================================================ */
+function dayPnl(day) { return day.trades.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0); }
+function tradedCount(day) { return day.trades.filter(t=>t.symbol).length; }
+
+function updateDayStats(day) {
+  if(!day) return;
+  const pnl = dayPnl(day);
+  const trades = day.trades.filter(t=>t.pnl!==''&&t.pnl!==undefined);
+  const wins = trades.filter(t=>parseFloat(t.pnl)>0);
+  const losses = trades.filter(t=>parseFloat(t.pnl)<0);
+  const wr = trades.length>0?Math.round(wins.length/trades.length*100):0;
+  const winSum = wins.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const lossSum = Math.abs(losses.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0));
+  const pf = lossSum>0?(winSum/lossSum).toFixed(2):winSum>0?'∞':'—';
+  const rrs = day.trades.map(t=>parseFloat(t.rr)).filter(r=>!isNaN(r));
+  const avgRR = rrs.length>0?(rrs.reduce((a,b)=>a+b)/rrs.length).toFixed(1)+'R':'—';
+  const totalPnl = S.days.reduce((s,d)=>s+dayPnl(d),0);
+  const acct = 50000+totalPnl;
+  const ddUsed = Math.max(0,-totalPnl);
+
+  set('ds-pnl', fmt$(pnl), pnl>0?'pos':pnl<0?'neg':'');
+  set('dsWr', wr+'%');
+  set('dsPf', pf);
+  set('dsRr', avgRR);
+  set('ds-acct', fmtVal(acct).slice(1));
+  set('ds-dd', '-$'+ddUsed.toFixed(2), ddUsed>1500?'neg':'');
+  renderSidebar();
+}
+
+function set(id, val, cls='') {
+  const el = document.getElementById(id); if(!el) return;
+  el.textContent = val;
+  el.className = el.className.replace(/\bpos\b|\bneg\b|\bgold\b/g,'').trim();
+  if(cls) el.classList.add(cls);
+}
+
+function fmtNum(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+function fmt$(v) {
+  const n = parseFloat(v)||0;
+  const abs = Math.abs(n);
+  const str = Number.isInteger(abs) ? abs.toLocaleString('en-US') : abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return (n>=0?'+$':'-$')+str;
+}
+function fmtVal(n) {
+  const abs = Math.abs(n);
+  const str = Number.isInteger(abs) ? abs.toLocaleString('en-US') : abs.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return (n>=0?'$':'-$')+str;
+}
+
+function fmtShort(d) {
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+function fmtLong(d) {
+  return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function renderHome() {
+  const totalPnl = S.days.reduce((s,d)=>s+dayPnl(d),0);
+  const TARGET = 3000, MAX_DD = 2000;
+  const ddUsed = Math.max(0,-totalPnl);
+  const progress = Math.min(100,Math.max(0,totalPnl/TARGET*100));
+  const ddPct = Math.min(100,(ddUsed/MAX_DD*100));
+
+  // Eval bar
+  const fill = document.getElementById('evalFill');
+  if(fill) { fill.style.width=progress+'%'; fill.style.background = totalPnl>=TARGET?'#22c55e':totalPnl<0?'#ef4444':'#3b82f6'; }
+  const acctVal = 50000+totalPnl; set('heroAmt', fmtVal(acctVal).slice(1));
+  set('evalPnlVal', fmt$(totalPnl), totalPnl>0?'pos':totalPnl<0?'neg':'');
+  const pctEl = document.getElementById('evalPct');
+  if(pctEl) pctEl.textContent = progress.toFixed(1)+'% Complete';
+  const remEl = document.getElementById('evalRem');
+  if(remEl) { const rem = Math.max(0,TARGET-totalPnl); remEl.textContent = rem>0?'$'+rem.toFixed(0)+' remaining':'Target Reached!'; }
+
+  // DD bar
+  const ddFill = document.getElementById('ddFill');
+  if(ddFill) ddFill.style.width = ddPct+'%';
+  const ddAmtEl = document.getElementById('ddLabel');
+  if(ddAmtEl) ddAmtEl.textContent = '-$'+ddUsed.toFixed(2)+' used';
+  const ddPctEl = document.getElementById('ddPct');
+  if(ddPctEl) ddPctEl.textContent = ddPct.toFixed(1)+'% of limit used';
+  const ddRoomEl = document.getElementById('ddRoom');
+  if(ddRoomEl) { const room = Math.max(0,MAX_DD-ddUsed); ddRoomEl.textContent = '$'+room.toFixed(0)+' remaining'; ddRoomEl.style.color = room<400?'var(--red)':'var(--green)'; }
+
+  // Stats
+  const allTrades = S.days.flatMap(d=>d.trades).filter(t=>t.pnl!==''&&t.pnl!==undefined&&!isNaN(parseFloat(t.pnl)));
+  const wins = allTrades.filter(t=>parseFloat(t.pnl)>0);
+  const losses = allTrades.filter(t=>parseFloat(t.pnl)<0);
+  const wr = allTrades.length>0?Math.round(wins.length/allTrades.length*100):0;
+  const winSum = wins.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const lossSum = Math.abs(losses.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0));
+  const pf = lossSum>0?(winSum/lossSum).toFixed(2):winSum>0?'∞':'—';
+  const tradedDays = S.days.filter(d=>tradedCount(d)>0).length;
+
+  set('hs-pnl', fmt$(totalPnl), totalPnl>0?'pos':totalPnl<0?'neg':'');
+  set('hs-wr', wr+'%', wr>=50?'pos':wr>0?'neg':'');
+  set('hs-pf', pf);
+  set('hs-days', tradedDays);
+  set('hs-trades', allTrades.length);
+
+  // Recent sessions
+  const rec = document.getElementById('recentSessions');
+  if(rec) {
+    const recent = S.days.slice(0,6);
+    if(recent.length===0) { rec.innerHTML = '<div style="color:var(--text-3);font-size:12px;">No sessions yet</div>'; }
+    else {
+      rec.innerHTML = recent.map(d=>{
+        const p=dayPnl(d);
+        return `<div class="recent-row" onclick="selectDay('${d.id}')"><div class="recent-date">${fmtShort(d.date)}</div><div class="recent-pnl ${p>0?'pos':p<0?'neg':''}">${p!==0?fmt$(p):'—'}</div></div>`;
+      }).join('');
+    }
+  }
+
+  // Perf breakdown
+  const pb = document.getElementById('perfBreakdown');
+  if(pb) {
+    const bestTrade = allTrades.length?Math.max(...allTrades.map(t=>parseFloat(t.pnl))):0;
+    const worstTrade = allTrades.length?Math.min(...allTrades.map(t=>parseFloat(t.pnl))):0;
+    const avgWin = wins.length?winSum/wins.length:0;
+    const avgLoss = losses.length?lossSum/losses.length:0;
+    const acct = 50000+totalPnl;
+    pb.innerHTML = [
+      ['Account Value',fmtVal(acct).slice(1),''],
+      ['Best Trade',bestTrade>0?fmt$(bestTrade):'—','pos'],
+      ['Worst Trade',worstTrade<0?fmt$(worstTrade):'—','neg'],
+      ['Avg Win',avgWin?fmt$(avgWin):'—','pos'],
+      ['Avg Loss',avgLoss?fmt$(avgLoss):'—','neg'],
+    ].map(([l,v,c])=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">${l}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:${c==='pos'?'var(--green)':c==='neg'?'var(--red)':'var(--text-1)'};">${v}</div>
+    </div>`).join('');
+  }
+
+  // Rules page eval fill
+  const rpFill = document.getElementById('rp-fill');
+  if(rpFill){rpFill.style.width=progress+'%';rpFill.style.background=document.documentElement.getAttribute('data-theme')==='light'?'#2563eb':'#3b82f6';}
+  const rpLabels = document.getElementById('rp-labels');
+  if(rpLabels) rpLabels.innerHTML = `<span>$${totalPnl.toFixed(0)} / $3,000</span><span>${progress.toFixed(1)}% complete</span>`;
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+let calY = new Date().getFullYear(), calM = new Date().getMonth();
+
+function calPrev() { calM--; if(calM<0){calM=11;calY--;} renderCalendar(); }
+function calNext() { calM++; if(calM>11){calM=0;calY++;} renderCalendar(); }
+function calToday() { calY=new Date().getFullYear(); calM=new Date().getMonth(); renderCalendar(); }
+
+function renderCalendar() {
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent = months[calM]+' '+calY;
+
+  const monthDays = S.days.filter(d=>{
+    const dt=new Date(d.date+'T12:00:00');
+    return dt.getFullYear()===calY&&dt.getMonth()===calM;
+  });
+  const mPnl=monthDays.reduce((s,d)=>s+dayPnl(d),0);
+  const winD=monthDays.filter(d=>dayPnl(d)>0).length;
+  const lossD=monthDays.filter(d=>dayPnl(d)<0).length;
+  const mTrades=monthDays.reduce((s,d)=>s+tradedCount(d),0);
+  const mWr=monthDays.length>0?Math.round(winD/monthDays.length*100):0;
+
+  document.getElementById('calStats').innerHTML=`
+    <div class="tile"><div class="tile-label">Month P&L</div><div class="tile-val ${mPnl>0?'pos':mPnl<0?'neg':''}">${mPnl>=0?'+$':'-$'}${Math.abs(mPnl).toFixed(0)}</div></div>
+    <div class="tile"><div class="tile-label">Trading Days</div><div class="tile-val">${monthDays.length}</div></div>
+    <div class="tile"><div class="tile-label">Win Days</div><div class="tile-val pos">${winD}</div></div>
+    <div class="tile"><div class="tile-label">Loss Days</div><div class="tile-val neg">${lossD}</div></div>
+    <div class="tile"><div class="tile-label">Day Win Rate</div><div class="tile-val">${mWr}%</div></div>`;
+
+  const grid = document.getElementById('calDays');
+  grid.innerHTML='';
+  const first=new Date(calY,calM,1).getDay();
+  const total=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+
+  for(let i=0;i<first;i++){const d=document.createElement('div');d.className='cal-day empty';grid.appendChild(d);}
+
+  for(let d=1;d<=total;d++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const day=S.days.find(x=>x.date===ds);
+    const pnl=day?dayPnl(day):null;
+    const tc=day?tradedCount(day):0;
+    const isToday=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===d;
+    const el=document.createElement('div');
+    let cls='cal-day';
+    if(day&&pnl!==null) cls+=pnl>0?' win-day has-trade':pnl<0?' loss-day has-trade':' has-trade';
+    if(isToday) cls+=' today';
+    el.className=cls;
+    el.innerHTML=`<div class="cal-dn">${d}</div>${day&&pnl!==null?`<div class="cal-d-pnl">${pnl>=0?'+$':'-$'}${Math.abs(pnl).toFixed(0)}</div><div class="cal-d-trades">${tc} trade${tc!==1?'s':''}</div>`:''}`;
+    if(day) el.onclick=()=>selectDay(day.id);
+    grid.appendChild(el);
+  }
+}
+
+/* ============================================================
+   TRADE LOG
+   ============================================================ */
+function renderLog() {
+  const rows=[];
+  S.days.forEach(day=>day.trades.forEach(t=>{
+    if(t.symbol||t.entry||t.pnl) rows.push({day,t});
+  }));
+  document.getElementById('logCount').textContent=rows.length+' trades';
+  const body=document.getElementById('logBody');
+  if(!rows.length){body.innerHTML='<tr><td colspan="13" style="text-align:center;padding:40px;color:var(--text-3);">No trades logged yet</td></tr>';return;}
+  body.innerHTML=rows.map(({day,t},i)=>{
+    const pnl=parseFloat(t.pnl)||0;
+    return `<tr>
+      <td style="color:var(--text-3)">${i+1}</td>
+      <td>${day.date}</td>
+      <td style="color:var(--text-1);font-weight:600">${t.symbol||'—'}</td>
+      <td><span class="${t.dir==='LONG'?'tbl-long':t.dir==='SHORT'?'tbl-short':''}">${t.dir||'—'}</span></td>
+      <td>${t.entry||'—'}</td><td>${t.exit||'—'}</td><td>${t.size||'—'}</td>
+      <td>${t.sl||'—'}</td><td>${t.tp||'—'}</td>
+      <td class="${pnl>0?'tbl-pnl-pos':pnl<0?'tbl-pnl-neg':''}">${pnl!==0?fmt$(pnl):'—'}</td>
+      <td>${t.rr||'—'}</td>
+      <td style="color:${t.outcome==='WIN'?'var(--green)':t.outcome==='LOSS'?'var(--red)':'var(--text-3)'}">${t.outcome||'—'}</td>
+      <td style="color:var(--text-3)">${t.setup||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   STATISTICS
+   ============================================================ */
+function renderStats() {
+  const all=S.days.flatMap(d=>d.trades).filter(t=>t.pnl!==''&&!isNaN(parseFloat(t.pnl)));
+  const totalPnl=all.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const wins=all.filter(t=>parseFloat(t.pnl)>0);
+  const losses=all.filter(t=>parseFloat(t.pnl)<0);
+  const wr=all.length?Math.round(wins.length/all.length*100):0;
+  const wSum=wins.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0);
+  const lSum=Math.abs(losses.reduce((s,t)=>s+(parseFloat(t.pnl)||0),0));
+  const pf=lSum>0?(wSum/lSum).toFixed(2):wSum>0?'∞':'—';
+  const best=wins.length?Math.max(...wins.map(t=>parseFloat(t.pnl))):0;
+  const worst=losses.length?Math.min(...losses.map(t=>parseFloat(t.pnl))):0;
+
+  set('st-pnl', fmt$(totalPnl), totalPnl>0?'pos':totalPnl<0?'neg':'');
+  set('st-wr', wr+'%');
+  set('st-pf', pf);
+  set('st-total', all.length);
+  set('st-best', fmt$(best));
+  set('st-worst', fmt$(worst));
+  set('st-aw', wins.length?fmt$(wSum/wins.length):'$0');
+  set('st-al', losses.length?fmt$(lSum/losses.length):'$0');
+
+  drawEquity(); drawPnlBars();
+}
+
+function drawEquity() {
+  const c=document.getElementById('eqChart');
+  if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.parentElement.offsetWidth-48; c.height=160;
+  ctx.clearRect(0,0,c.width,c.height);
+  const pts=[50000];
+  [...S.days].sort((a,b)=>a.date.localeCompare(b.date)).forEach(d=>pts.push(pts[pts.length-1]+dayPnl(d)));
+  if(pts.length<2){drawEmpty(ctx,c.width,c.height,'No data yet');return;}
+  const mn=Math.min(...pts),mx=Math.max(...pts),range=mx-mn||1;
+  const pad={t:16,b:24,l:10,r:16};
+  const W=c.width-pad.l-pad.r,H=c.height-pad.t-pad.b;
+  const px=i=>pad.l+(i/(pts.length-1))*W;
+  const py=v=>pad.t+H-((v-mn)/range*H);
+  // Grid
+  ctx.strokeStyle=document.documentElement.getAttribute('data-theme')==='light'?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  [0.25,0.5,0.75].forEach(f=>{const y=pad.t+f*H;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+W,y);ctx.stroke();});
+  // Gradient fill
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const g=ctx.createLinearGradient(0,pad.t,0,pad.t+H);
+  g.addColorStop(0,'rgba(96,165,250,0.18)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.beginPath();ctx.moveTo(px(0),py(pts[0]));
+  pts.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));});
+  ctx.lineTo(px(pts.length-1),pad.t+H);ctx.lineTo(px(0),pad.t+H);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+  // Line
+  ctx.beginPath();ctx.strokeStyle=document.documentElement.getAttribute('data-theme')==='light'?'#2563eb':'#60a5fa';ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.moveTo(px(0),py(pts[0]));pts.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));});ctx.stroke();
+  // Dots
+  pts.forEach((v,i)=>{if(i===0||i===pts.length-1){ctx.beginPath();ctx.arc(px(i),py(v),4,0,Math.PI*2);ctx.fillStyle=document.documentElement.getAttribute('data-theme')!=='light'?'#60a5fa':'#2563eb';ctx.fill();}});
+}
+
+function drawPnlBars() {
+  const c=document.getElementById('pnlChart');
+  if(!c) return;
+  const ctx=c.getContext('2d');
+  c.width=c.parentElement.offsetWidth-48; c.height=110;
+  ctx.clearRect(0,0,c.width,c.height);
+  const days=[...S.days].sort((a,b)=>a.date.localeCompare(b.date));
+  const pnls=days.map(d=>dayPnl(d));
+  if(!pnls.length){drawEmpty(ctx,c.width,c.height,'No data');return;}
+  const maxV=Math.max(...pnls.map(Math.abs),1);
+  const pad={t:10,b:16,l:10,r:10};
+  const W=c.width-pad.l-pad.r,H=c.height-pad.t-pad.b;
+  const bW=Math.max(4,Math.min(28,W/pnls.length-3));
+  const midY=pad.t+H/2;
+  ctx.strokeStyle=document.documentElement.getAttribute('data-theme')==='light'?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,midY);ctx.lineTo(pad.l+W,midY);ctx.stroke();
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  pnls.forEach((p,i)=>{
+    const x=pad.l+(i/pnls.length)*W+W/pnls.length/2-bW/2;
+    const bH=(Math.abs(p)/maxV)*(H/2-4);
+    ctx.fillStyle=p>=0?(isDark?'rgba(61,214,140,0.7)':'rgba(26,122,74,0.7)'):(isDark?'rgba(255,107,107,0.7)':'rgba(192,57,43,0.7)');
+    if(p>=0)ctx.fillRect(x,midY-bH,bW,bH);
+    else ctx.fillRect(x,midY,bW,bH);
+  });
+}
+
+function drawEmpty(ctx,w,h,msg) {
+  ctx.fillStyle=document.documentElement.getAttribute('data-theme')==='light'?'rgba(0,0,0,0.2)':'rgba(255,255,255,0.15)';ctx.font='12px Outfit,sans-serif';ctx.textAlign='center';ctx.fillText(msg,w/2,h/2);
+}
+
+/* ============================================================
+   RULES PAGE
+   ============================================================ */
+function rulesTab(tab, el) {
+  document.querySelectorAll('.r-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.rpage').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('rp-'+tab).classList.add('on');
+  if(tab==='account') renderHome(); // refresh eval bar
+}
+
+function applyRulesState() {
+  ['planPre','planEntry','planExit','planRisk','mindAff','mindPit','mindNotes'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=RS[id]||'';
+  });
+  renderRuleList();
+  renderSetupList();
+  renderHome();
+}
+
+/* Rules */
+function renderRuleList() {
+  const el=document.getElementById('ruleList');
+  if(!el) return;
+  el.innerHTML=RS.rules.map((r,i)=>`
+    <div class="rule-item">
+      <div class="rule-num">${i+1}</div>
+      <input class="rule-text" value="${escHtml(r)}" placeholder="Enter rule..." onchange="RS.rules[${i}]=this.value;save()">
+      <button class="rule-del" onclick="deleteRule(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addRule() {
+  RS.rules.push('');
+  renderRuleList();
+  // Focus last
+  const items=document.querySelectorAll('.rule-text');
+  if(items.length) items[items.length-1].focus();
+  save();
+}
+
+function deleteRule(i) {
+  confirmDelete(
+    'Delete Rule?',
+    'This rule will be permanently removed.',
+    function() {
+      RS.rules.splice(i, 1);
+      renderRuleList();
+      save();
+    }
+  );
+}
+
+/* Setups */
+function renderSetupList() {
+  const el=document.getElementById('setupList');
+  if(!el) return;
+  el.innerHTML=RS.setups.map((s,i)=>`
+    <div class="setup-card">
+      <div class="setup-card-header">
+        <input class="setup-name-input" value="${escHtml(s.name)}" placeholder="Setup Name..." onchange="RS.setups[${i}].name=this.value;save()">
+        <button class="setup-del" onclick="deleteSetup(${i})">✕</button>
+      </div>
+      <div class="setup-card-body">
+        <div class="setup-field"><div class="setup-field-label">Entry Criteria</div><textarea class="j-textarea" style="min-height:90px;" placeholder="What must be true to enter..." onchange="RS.setups[${i}].entry=this.value;save()">${escHtml(s.entry||'')}</textarea></div>
+        <div class="setup-field"><div class="setup-field-label">Exit Criteria</div><textarea class="j-textarea" style="min-height:90px;" placeholder="How you manage and exit..." onchange="RS.setups[${i}].exit=this.value;save()">${escHtml(s.exit||'')}</textarea></div>
+        <div class="setup-field"><div class="setup-field-label">Notes</div><textarea class="j-textarea" style="min-height:90px;" placeholder="Win rate, best conditions..." onchange="RS.setups[${i}].notes=this.value;save()">${escHtml(s.notes||'')}</textarea></div>
+      </div>
+    </div>`).join('');
+}
+
+function addSetup() {
+  RS.setups.push({name:'New Setup',entry:'',exit:'',notes:''});
+  renderSetupList();
+  save();
+}
+
+function deleteSetup(i) {
+  confirmDelete(
+    'Delete Setup?',
+    'This trading setup will be permanently removed.',
+    function() {
+      RS.setups.splice(i, 1);
+      renderSetupList();
+      save();
+    }
+  );
+}
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('click', e=>{
+  if(e.target===document.getElementById('modal')) closeModal();
+});
+
+document.getElementById('preNote').addEventListener('change',e=>{ const d=getActiveDay();if(d)d.preNote=e.target.value; });
+document.getElementById('eodNote').addEventListener('change',e=>{ const d=getActiveDay();if(d)d.eodNote=e.target.value; });
+
+// Boot
+load();
+loadTheme();
+renderSidebar();
+renderHome();
+
+// Restore last session
+if(S.activeId && S.days.find(d=>d.id===S.activeId)) {
+  // Keep on home but mark active in sidebar
+  renderSidebar();
+} else if(S.days.length>0) {
+  S.activeId = S.days[0].id;
+  renderSidebar();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  load();
+  loadTheme();
+  renderSidebar();
+  renderHome();
+  if(S.activeId) {
+    selectDay(S.activeId);
+    // Show journal nav as active too if we have active day
+  }
+  applyRulesState();
+});
+
+
+/* ============================================================
+   NOTES PAGE
+   ============================================================ */
+const NOTES_STORE = 'lf50_notes_v1';
+let _notes = [];
+let _activeNoteId = null;
+
+function notesLoad() {
+  try {
+    const saved = localStorage.getItem(NOTES_STORE);
+    _notes = saved ? JSON.parse(saved) : [];
+  } catch(e) { _notes = []; }
+}
+
+function notesSave() {
+  try { localStorage.setItem(NOTES_STORE, JSON.stringify(_notes)); } catch(e) {}
+}
+
+function renderNotesList() {
+  const el = document.getElementById('notesList');
+  if(!el) return;
+  if(!_notes.length) {
+    el.innerHTML = '<div style="padding:20px 12px;font-size:11px;color:var(--text-4);text-align:center;">No notes yet.<br>Hit + New to start.</div>';
+    return;
+  }
+  el.innerHTML = _notes.map(n => `
+    <div class="note-item ${n.id===_activeNoteId?'on':''}" onclick="openNote('${n.id}')">
+      <div class="note-item-title">${escHtml(n.title||'Untitled')}</div>
+      <div class="note-item-preview">${escHtml((n.body||'').slice(0,60))}</div>
+      <div class="note-item-ts">${fmtNoteTs(n.updatedAt)}</div>
+    </div>`).join('');
+}
+
+function fmtNoteTs(ts) {
+  if(!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if(diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function newNote() {
+  const n = { id: Date.now()+'', title:'', body:'', createdAt: Date.now(), updatedAt: Date.now() };
+  _notes.unshift(n);
+  notesSave();
+  openNote(n.id);
+}
+
+function openNote(id) {
+  _activeNoteId = id;
+  const n = _notes.find(x => x.id === id);
+  if(!n) return;
+  document.getElementById('notesEmpty').style.display = 'none';
+  const active = document.getElementById('notesActive');
+  active.style.display = 'flex';
+  document.getElementById('notesTitleInp').value = n.title || '';
+  document.getElementById('notesBodyTa').value = n.body || '';
+  document.getElementById('notesTs').textContent = n.updatedAt ? 'Updated ' + fmtNoteTs(n.updatedAt) : '';
+  renderNotesList();
+}
+
+function updateNoteTitle(val) {
+  const n = _notes.find(x => x.id === _activeNoteId);
+  if(!n) return;
+  n.title = val; n.updatedAt = Date.now();
+  document.getElementById('notesTs').textContent = 'Updated just now';
+  notesSave();
+  renderNotesList();
+}
+
+function updateNoteBody(val) {
+  const n = _notes.find(x => x.id === _activeNoteId);
+  if(!n) return;
+  n.body = val; n.updatedAt = Date.now();
+  document.getElementById('notesTs').textContent = 'Updated just now';
+  notesSave();
+  renderNotesList();
+}
+
+function deleteNote() {
+  if(!_activeNoteId) return;
+  var noteTitle = (_notes.find(function(x){ return x.id === _activeNoteId; }) || {}).title || 'this note';
+  confirmDelete(
+    'Delete Note?',
+    'Delete "' + noteTitle + '"? This cannot be undone.',
+    function() {
+      var id = _activeNoteId;
+      _notes = _notes.filter(function(x){ return x.id !== id; });
+      _activeNoteId = null;
+      notesSave();
+      var empty = document.getElementById('notesEmpty');
+      var active = document.getElementById('notesActive');
+      if(empty) empty.style.display = 'flex';
+      if(active) active.style.display = 'none';
+      renderNotesList();
+    }
+  );
+}
+
+function initNotesPage() {
+  notesLoad();
+  renderNotesList();
+}
+
+/* ============================================================
+   CONFIRM DELETE MODAL
+   ============================================================ */
+let _deletePendingFn = null;
+
+function confirmDelete(title, sub, fn) {
+  _deletePendingFn = fn;
+  var titleEl = document.getElementById('confirmDeleteTitle');
+  var subEl   = document.getElementById('confirmDeleteSub');
+  if(titleEl) titleEl.textContent = title || 'Are you sure?';
+  if(subEl)   subEl.textContent   = sub   || 'This action cannot be undone.';
+  document.getElementById('confirmDeleteModal').classList.add('on');
+}
+
+function closeConfirmDelete() {
+  document.getElementById('confirmDeleteModal').classList.remove('on');
+  _deletePendingFn = null;
+}
+
+function executeDelete() {
+  if(_deletePendingFn) {
+    _deletePendingFn();
+    _deletePendingFn = null;
+  }
+  closeConfirmDelete();
+}
+
+
+</script>
+</body>
+</html>
